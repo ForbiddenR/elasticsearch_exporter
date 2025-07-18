@@ -9,14 +9,11 @@ pub struct Conf {
     pub username: String,
     #[serde(default)]
     pub password: String,
+    pub enabled_exporters: Option<String>
 }
 
 impl Conf {
     pub fn build() -> Result<Conf> {
         Ok(envy::from_env()?)
-    }
-
-    pub fn has_anthentication(&self) -> bool {
-        !&self.password.is_empty() && !&self.username.is_empty()
     }
 }

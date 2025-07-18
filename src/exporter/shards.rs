@@ -1,10 +1,9 @@
-use crate::{prefix_gauge_vec, query, response::shards::ShardResposne};
+use crate::{config::Conf, prefix_gauge_vec, query, response::shards::ShardResposne};
 use anyhow::Result;
 use prometheus::{GaugeVec, Opts, core::Collector, proto::MetricFamily};
 
 const ENDPOINT: &str = "/_cat/shards";
 const QUERY: &[(&str, &str); 1] = &[("format", "json")];
-// const EMPTY_LABELS: &[&'static str; 0] = &[];
 
 macro_rules! initializing {
     ($name:ident, $t:ty) => {
@@ -74,13 +73,14 @@ impl Shards {
         }
     }
 
-    pub async fn collect(&self, base: &str) -> Result<Vec<MetricFamily>> {
+    pub async fn collect(&self, conf: &Conf) -> Result<Vec<MetricFamily>> {
         self.metrics
             .iter()
             // .chain(self.total_metrics.iter())
             .for_each(|f| f.gauge_vec.reset());
 
-        let resp: Vec<ShardResposne> = query!(json base,QUERY);
+        let resp: Vec<ShardResposne> =
+            query!(json conf.addr, &conf.username, &conf.password, QUERY);
         for r in &resp {
             if !r.index.starts_with(".") {
                 self.metrics.iter().for_each(|f| {

@@ -1,6 +1,9 @@
 use prometheus::{Gauge, core::Collector, proto::MetricFamily};
 
-use crate::exporter::{cluster_health::ClusterHealth, ping::Ping, shards::Shards};
+use crate::{
+    config::Conf,
+    exporter::{cluster_health::ClusterHealth, ping::Ping, shards::Shards},
+};
 use anyhow::Result;
 
 mod cluster_health;
@@ -27,6 +30,7 @@ macro_rules! prefix_gauge_vec {
 }
 
 pub struct Collect {
+    config: Conf,
     cluster_health: ClusterHealth,
     ping: Ping,
     shards: Shards,
@@ -34,32 +38,32 @@ pub struct Collect {
 }
 
 impl Collect {
-    pub fn new() -> Self {
+    pub fn new(config: Conf) -> Self {
         Self {
             cluster_health: ClusterHealth::new(),
             shards: Shards::new(),
             ping: Ping::new(),
             up: prefix_gauge!("node_status", "Was the last scrape of rabbitmq successful."),
+            config,
         }
     }
 
     async fn all(&self) -> Result<Vec<MetricFamily>> {
-        let base = "http://10.43.0.30:9200";
-        let mut result = Vec::from(self.cluster_health.collect(base).await?);
-        result.extend(self.shards.collect(base).await?);
+        let mut result = Vec::from(self.cluster_health.collect(&self.config).await?);
+        result.extend(self.shards.collect(&self.config).await?);
         Ok(result)
     }
 
     async fn ping(&self) -> Result<Vec<MetricFamily>> {
-        let base = "http://10.43.0.30:9200";
-        Ok(Vec::from(self.ping.collect(base).await?))
+        Ok(Vec::from(self.ping.collect(&self.config).await?))
     }
 
     pub async fn collect(&self, all: &Option<String>) -> Vec<MetricFamily> {
         // let result =
-        match match all {
-            None => self.ping().await,
-            _ => self.all().await,
+        match if all.is_some() || self.config.enabled_exporters.is_some() {
+            self.all().await
+        } else {
+            self.ping().await
         } {
             Ok(mut m) => {
                 self.up.set(1.0);

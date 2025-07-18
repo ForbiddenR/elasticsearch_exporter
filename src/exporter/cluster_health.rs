@@ -1,4 +1,4 @@
-use crate::response::cluster_health::ClusterHealthResponse;
+use crate::{config::Conf, response::cluster_health::ClusterHealthResponse};
 use anyhow::Result;
 use prometheus::{Gauge, GaugeVec, Opts, core::Collector, proto::MetricFamily};
 
@@ -144,8 +144,8 @@ impl ClusterHealth {
         }
     }
 
-    pub async fn collect(&self, base: &str) -> Result<Vec<MetricFamily>> {
-        let resp: ClusterHealthResponse = query!(json base);
+    pub async fn collect(&self, conf: &Conf) -> Result<Vec<MetricFamily>> {
+        let resp: ClusterHealthResponse = query!(json conf.addr, &conf.username, &conf.password);
 
         let mut result = vec![];
 

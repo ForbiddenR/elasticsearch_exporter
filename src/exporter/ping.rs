@@ -1,7 +1,7 @@
 use anyhow::Result;
 use prometheus::proto::MetricFamily;
 
-use crate::query;
+use crate::{config::Conf, query};
 
 const ENDPOINT: &str = "/";
 
@@ -12,7 +12,7 @@ impl Ping {
         Self {}
     }
 
-    pub async fn collect(&self, base: &str) -> Result<Vec<MetricFamily>> {
-        Ok(query!(ok base))
+    pub async fn collect(&self, conf: &Conf) -> Result<Vec<MetricFamily>> {
+        Ok(query!(ok  conf.addr, &conf.username, &conf.password))
     }
 }
