@@ -58,8 +58,8 @@ impl Collect {
         Ok(Vec::from(self.ping.collect(&self.config).await?))
     }
 
-    pub async fn collect(&self, all: &Option<String>) -> Vec<MetricFamily> {
-        match if all.is_some() || self.config.enabled_exporters.is_some() {
+    pub async fn collect(&self, all: bool) -> Vec<MetricFamily> {
+        match if all || self.config.all_exporters() {
             self.all().await
         } else {
             self.ping().await

@@ -1,32 +1,26 @@
 use std::sync::Arc;
 
 use axum::{
-    extract::{Query, State},
+    extract::State,
     http::StatusCode,
     response::{IntoResponse, Response},
 };
 use prometheus::{Encoder, TextEncoder};
-use serde::Deserialize;
 use tokio::sync::RwLock;
 
-use crate::exporter;
+use crate::{exporter, header::ExplicitHeader};
 
 pub async fn heartbeat() -> StatusCode {
     StatusCode::OK
 }
 
-#[derive(Debug, Deserialize)]
-pub struct Params {
-    enabled_exporters: Option<String>,
-}
-
 pub async fn metric(
     State(exporter): State<Arc<RwLock<exporter::Collect>>>,
-    Query(params): Query<Params>,
+    header: ExplicitHeader,
 ) -> Response {
     let metrics;
     {
-        metrics = exporter.write().await.collect(&params.enabled_exporters).await;
+        metrics = exporter.write().await.collect(header.is_present()).await;
     }
 
     let encoder = TextEncoder::new();
