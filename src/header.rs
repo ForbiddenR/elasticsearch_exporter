@@ -25,7 +25,7 @@ where
                 .extract::<HeaderMap>()
                 .await
                 .map_err(|_| ())?
-                .get("ENABLED_EXPORTED")
+                .get("ENABLED_EXPORTERS")
                 .and_then(|_| Some(())),
         ))
     }
