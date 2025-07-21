@@ -59,7 +59,6 @@ impl Collect {
     }
 
     pub async fn collect(&self, all: &Option<String>) -> Vec<MetricFamily> {
-        // let result =
         match if all.is_some() || self.config.enabled_exporters.is_some() {
             self.all().await
         } else {

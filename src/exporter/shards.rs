@@ -99,7 +99,6 @@ impl Shards {
         Ok(self
             .metrics
             .iter()
-            // .chain(self.total_metrics.iter())
             .flat_map(|f| f.gauge_vec.collect())
             .collect())
     }

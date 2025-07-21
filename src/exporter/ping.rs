@@ -13,6 +13,6 @@ impl Ping {
     }
 
     pub async fn collect(&self, conf: &Conf) -> Result<Vec<MetricFamily>> {
-        Ok(query!(ok  conf.addr, &conf.username, &conf.password))
+        Ok(query!(ok conf.addr, &conf.username, &conf.password))
     }
 }
