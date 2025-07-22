@@ -134,9 +134,7 @@ impl ClusterHealth {
                 "Whether all primary and replica shards are allocated.",
                 &["color"]
             ),
-            |n, c| {
-                if n.status == c { 1.0 } else { 0.0 }
-            },
+            |n, c| (n.status == c) as u8 as f64,
         );
         Self {
             metrics,
