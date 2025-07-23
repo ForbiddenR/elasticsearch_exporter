@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use axum::{
     RequestPartsExt,
     extract::FromRequestParts,
@@ -7,7 +9,15 @@ use axum::{
 use crate::config::Mode;
 
 #[derive(Debug)]
-pub struct ExplicitHeader(pub Option<Mode>);
+pub struct ExplicitHeader(Option<Mode>);
+
+impl Deref for ExplicitHeader {
+    type Target = Option<Mode>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 
 impl<S> FromRequestParts<S> for ExplicitHeader
 where

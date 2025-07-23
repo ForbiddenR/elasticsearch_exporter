@@ -18,7 +18,7 @@ pub async fn metric(
     State(exporter): State<Arc<RwLock<exporter::Collect>>>,
     header: ExplicitHeader,
 ) -> Response {
-    let metrics = { exporter.write().await.collect(&header.0).await };
+    let metrics = { exporter.write().await.collect(&header).await };
 
     let encoder = TextEncoder::new();
     let mut buffer = vec![];
