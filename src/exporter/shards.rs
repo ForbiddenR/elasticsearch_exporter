@@ -23,6 +23,8 @@ impl Shards {
         Self { metrics }
     }
 
+    // get shard info from http://ip:port/_cat/shards, if the query "format=json" is not added,
+    // the output will be send to stdout
     pub async fn collect(&self, conf: &Conf) -> Result<Vec<MetricFamily>> {
         self.metrics
             .iter()

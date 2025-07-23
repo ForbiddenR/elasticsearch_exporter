@@ -1,7 +1,7 @@
 use prometheus::{Gauge, core::Collector, proto::MetricFamily};
 
 use crate::{
-    config::Conf,
+    config::{Conf, Mode},
     exporter::{cluster_health::ClusterHealth, ping::Ping, shards::Shards},
 };
 use anyhow::Result;
@@ -9,7 +9,6 @@ use anyhow::Result;
 mod cluster_health;
 mod ping;
 mod shards;
-mod stats;
 
 #[macro_export]
 macro_rules! prefix_gauge {
@@ -28,8 +27,7 @@ macro_rules! prefix_gauge_vec {
             .expect("Could not create gauge")
     };
     ($name: literal, $help:literal, $tags:expr) => {
-        GaugeVec::new(Opts::new($name, $help), $tags)
-            .expect("Could not create gauge")
+        GaugeVec::new(Opts::new($name, $help), $tags).expect("Could not create gauge")
     };
 }
 
@@ -82,25 +80,27 @@ impl Collect {
         Ok(Vec::from(self.ping.collect(&self.config).await?))
     }
 
-    pub async fn collect(&self, all: bool) -> Vec<MetricFamily> {
-        match if all || self.config.all_exporters() {
-            self.all().await
-        } else {
-            self.ping().await
+    // A cheif collector collects all metrics from different endpoints.
+    // If some errors occur in any http request, it will just return node_status with 0 whether
+    // exporter_mode is set to standard.
+    pub async fn collect(&self, mode: &Option<Mode>) -> Vec<MetricFamily> {
+        match match mode.as_ref().unwrap_or(&self.config.exporter_mode) {
+            Mode::Standard => self.all().await,
+            Mode::Simple => self.ping().await,
         } {
-            Ok(mut m) => {
+            Ok(m) => {
                 self.up.set(1.0);
-                m.extend(self.up.collect());
                 m
             }
             Err(e) => {
-                println!("{e}");
+                eprintln!("{e}");
                 self.up.set(0.0);
-                self.up.collect()
+                return self.up.collect();
             }
         }
         .into_iter()
         .filter(|f| !f.get_metric().is_empty())
+        .chain(self.up.collect())
         .collect()
     }
 }
