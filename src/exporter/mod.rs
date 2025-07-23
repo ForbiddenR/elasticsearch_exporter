@@ -27,6 +27,30 @@ macro_rules! prefix_gauge_vec {
         GaugeVec::new(Opts::new($name, $help).subsystem($prefix), $tags)
             .expect("Could not create gauge")
     };
+    ($name: literal, $help:literal, $tags:expr) => {
+        GaugeVec::new(Opts::new($name, $help), $tags)
+            .expect("Could not create gauge")
+    };
+}
+
+#[macro_export]
+macro_rules! initializing {
+    ($name:ident, $t:ty) => {
+        #[derive(Debug)]
+        struct $name {
+            gauge_vec: GaugeVec,
+            value_fn: fn(&$t) -> f64,
+        }
+
+        impl $name {
+            fn new(gauge_vec: GaugeVec, value_fn: fn(&$t) -> f64) -> Self {
+                Self {
+                    gauge_vec,
+                    value_fn,
+                }
+            }
+        }
+    };
 }
 
 pub struct Collect {
