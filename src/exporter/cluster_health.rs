@@ -10,12 +10,12 @@ const DEFAULT_LABEL: &[&str; 0] = &[];
 
 initializing!(ClusterHealthStatusMetric, ClusterHealthResponse);
 
-pub struct ClusterHealth {
+pub(crate) struct ClusterHealth {
     status_metric: ClusterHealthStatusMetric,
 }
 
 impl ClusterHealth {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         let prefix = "cluster_health";
 
         let status_metric = ClusterHealthStatusMetric::new(
@@ -34,7 +34,7 @@ impl ClusterHealth {
     }
 
     // get cluster info from http://ip:port/_cluster/health
-    pub async fn collect(&self, conf: &Conf) -> Result<Vec<MetricFamily>> {
+    pub(crate) async fn collect(&self, conf: &Conf) -> Result<Vec<MetricFamily>> {
         let resp: ClusterHealthResponse = query!(json conf.addr, &conf.username, &conf.password);
 
         Ok({

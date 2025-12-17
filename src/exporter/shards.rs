@@ -13,7 +13,7 @@ pub struct Shards {
 }
 
 impl Shards {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         let default_labels = &["index"];
         let metrics = vec![NodeShardMetric::new(
             prefix_gauge_vec!("docs", "The docs number in target index", default_labels),
@@ -25,7 +25,7 @@ impl Shards {
 
     // get shard info from http://ip:port/_cat/shards, if the query "format=json" is not added,
     // the output will be send to stdout
-    pub async fn collect(&self, conf: &Conf) -> Result<Vec<MetricFamily>> {
+    pub(crate) async fn collect(&self, conf: &Conf) -> Result<Vec<MetricFamily>> {
         self.metrics
             .iter()
             // .chain(self.total_metrics.iter())

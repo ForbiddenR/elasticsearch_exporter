@@ -65,7 +65,14 @@ impl Nodes {
                 BreakerMetric::new(prefix_gauge_vec!($prefix, $name, $help, $tags), $value_fn)
             };
             (idx, $prefix:ident, $name:literal, $help:literal, $tags:expr, $value_fn:expr $(,)?) => {
-                new!(IndexingPressureMetric, $prefix, $name, $help, $tags, $value_fn)
+                new!(
+                    IndexingPressureMetric,
+                    $prefix,
+                    $name,
+                    $help,
+                    $tags,
+                    $value_fn
+                )
             };
             (thread, $prefix:ident, $name:literal, $help:literal, $tags:expr, $value_fn:expr $(,)?) => {
                 ThreadPoolMetric::new(prefix_gauge_vec!($prefix, $name, $help, $tags), $value_fn)
