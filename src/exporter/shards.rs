@@ -7,13 +7,12 @@ const QUERY: &[(&str, &str); 1] = &[("format", "json")];
 
 initializing!(NodeShardMetric, ShardResposne);
 
-
 pub struct Shards {
     metrics: Vec<NodeShardMetric>,
 }
 
 impl Shards {
-    pub(crate) fn new() -> Self {
+    pub(super) fn new() -> Self {
         let default_labels = &["index"];
         let metrics = vec![NodeShardMetric::new(
             prefix_gauge_vec!("docs", "The docs number in target index", default_labels),
@@ -25,7 +24,7 @@ impl Shards {
 
     // get shard info from http://ip:port/_cat/shards, if the query "format=json" is not added,
     // the output will be send to stdout
-    pub(crate) async fn collect(&self, conf: &Conf) -> Result<Vec<MetricFamily>> {
+    pub(super) async fn collect(&self, conf: &Conf) -> Result<Vec<MetricFamily>> {
         self.metrics
             .iter()
             // .chain(self.total_metrics.iter())

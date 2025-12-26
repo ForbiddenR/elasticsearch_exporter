@@ -10,11 +10,11 @@ use tokio::sync::RwLock;
 
 use crate::{exporter, header::ExplicitHeader};
 
-pub async fn heartbeat() -> StatusCode {
+pub(crate) async fn heartbeat() -> StatusCode {
     StatusCode::OK
 }
 
-pub async fn metric(
+pub(crate) async fn metric(
     State(exporter): State<Arc<RwLock<exporter::Collect>>>,
     header: ExplicitHeader,
 ) -> Response {

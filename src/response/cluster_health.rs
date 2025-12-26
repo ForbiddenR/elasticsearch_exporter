@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
-pub struct ClusterHealthResponse {
+pub(crate) struct ClusterHealthResponse {
     pub status: String,
 }

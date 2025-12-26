@@ -9,7 +9,7 @@ use axum::{
 use crate::config::Mode;
 
 #[derive(Debug)]
-pub struct ExplicitHeader(Option<Mode>);
+pub(crate) struct ExplicitHeader(Option<Mode>);
 
 impl Deref for ExplicitHeader {
     type Target = Option<Mode>;

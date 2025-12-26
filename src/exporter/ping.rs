@@ -8,13 +8,13 @@ const ENDPOINT: &str = "/";
 pub struct Ping {}
 
 impl Ping {
-    pub fn new() -> Self {
+    pub(super) fn new() -> Self {
         Self {}
     }
 
     // only check the node status from http://ip:port/. the node is health when
     // the status of the json resposne is ok
-    pub async fn collect(&self, conf: &Conf) -> Result<Vec<MetricFamily>> {
+    pub(super) async fn collect(&self, conf: &Conf) -> Result<Vec<MetricFamily>> {
         Ok(query!(ok conf.addr, &conf.username, &conf.password))
     }
 }

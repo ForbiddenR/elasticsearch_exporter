@@ -83,7 +83,7 @@ impl Collect {
     // A cheif collector collects all metrics from different endpoints.
     // If some errors occur in any http request, it will just return node_status with 0 whether
     // exporter_mode is set to standard.
-    pub async fn collect(&self, mode: &Option<Mode>) -> Vec<MetricFamily> {
+    pub(crate) async fn collect(&self, mode: &Option<Mode>) -> Vec<MetricFamily> {
         match match mode.as_ref().unwrap_or(&self.config.exporter_mode) {
             Mode::Standard => self.all().await,
             Mode::Simple => self.ping().await,
